@@ -10,7 +10,8 @@ function getValue(obj, path, defaultValue) {
   }
 }
 
-class WS {}
+class WS {
+}
 
 exports.WS = WS;
 
@@ -27,7 +28,8 @@ class Integer {
 exports.Integer = Integer
 
 class Add {
-  constructor(left, right) {
+  constructor(operator, left, right) {
+    this.operator = operator;
     this.left = left;
     this.right = right;
   }
@@ -54,7 +56,7 @@ exports.createAdd = function createAdd(list, node) {
 
     return createAdd(list.slice(2), node)
   } else {
-    const cur = new Add(node, operand1[2])
+    const cur = new Add(operand1[0], node, operand1[2])
 
     return createAdd(list.slice(1), cur)
   }
@@ -63,7 +65,8 @@ exports.createAdd = function createAdd(list, node) {
 
 
 class Mul {
-  constructor(left, right) {
+  constructor(operator, left, right) {
+    this.operator = operator;
     this.left = left;
     this.right = right;
   }
@@ -89,7 +92,7 @@ exports.createMul = function createMul(list, node) {
 
     return createMul(list.slice(2), node)
   } else {
-    const cur = new Mul(node, operand1[2])
+    const cur = new Mul(operand1[0], node, operand1[2])
 
     return createMul(list.slice(1), cur)
   }

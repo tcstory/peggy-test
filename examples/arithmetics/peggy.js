@@ -208,16 +208,16 @@ function peg$parse(input, options) {
     if (tail.length === 0) {
       return head;
     } else {
-      const list = [['+', new WS(), head]].concat(tail)
-      return createAdd(list, new Add(null, null))
+      const list = [['', new WS(), head]].concat(tail)
+      return createAdd(list, new Add(tail[0][0], null, null))
     }
   };
   var peg$f1 = function(head, tail) {
     if (tail.length === 0) {
       return head;
     } else {
-      const list = [['+', new WS(), head]].concat(tail)
-      return createMul(list, new Mul(null, null))
+      const list = [['', new WS(), head]].concat(tail)
+      return createMul(list, new Mul(tail[0][0], null, null))
     }
   };
   var peg$f2 = function(expr) {
