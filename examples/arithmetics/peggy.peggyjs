@@ -1,0 +1,49 @@
+{{
+    const {
+      WS,
+      Integer,
+      Add,
+      createAdd,
+      Mul,
+      createMul,
+    } = require('./helper');
+}}
+
+
+additive
+  = head:multiplicative ws tail:(("+" / "-") ws multiplicative)* {
+    if (tail.length === 0) {
+      return head;
+    } else {
+      const list = [['+', new WS(), head]].concat(tail)
+      return createAdd(list, new Add(null, null))
+    }
+  }
+
+multiplicative
+  = head:primary ws tail:(("*" / "/") ws primary)* {
+    if (tail.length === 0) {
+      return head;
+    } else {
+      const list = [['+', new WS(), head]].concat(tail)
+      return createMul(list, new Mul(null, null))
+    }
+  }
+
+primary
+  = "(" ws expr:additive  ws ")" {
+    return expr;
+  }
+  / n:integer {
+    return n;
+  }
+
+integer "integer"
+  = ws [0-9]+ {
+    return new Integer(text());
+  }
+
+ws "whitespace"
+  = [ \t\n\r]* {
+    return new WS()
+  }
