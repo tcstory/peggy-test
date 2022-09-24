@@ -1,0 +1,68 @@
+{{
+  //
+}}
+
+tag "tag"
+  = ws* h:startTag ws* content:element* ws* t:endTag ws* {
+    if (h.value === t.value) {
+      return {
+        type: "tag",
+        value: content,
+        attrs: h.attrs,
+      }
+    } else {
+      return error("start tag does not match end tag")
+    }
+  }
+
+startTag "startTag"
+  = "<" name:symbol attrs:attributes ">" {
+    return {type: 'startTag', value: name, attrs};
+  }
+
+endTag "endTag"
+  = "</" name:symbol ">" {
+    return {type: 'endTag', value: name};
+  }
+
+element "element"
+  = text
+  / tag
+
+text "text"
+  = ch:(!endTag !startTag c:. {return c})+ {
+    return {
+      type: "text",
+      value: ch.join("")
+    }
+  }
+
+string "string"
+  = '"'  ch:[^"]*      '"'  { return ch.join(''); }
+  / '\'' ch:[^']*      '\'' { return ch.join(''); }
+  /      ch:[^"'<>` ]+      { return ch.join(''); }
+
+attributes "attributes"
+  = ws* s:(key:symbol ws* val:("=" ws* val:string { return val; })? { return {key,val}; })* ws* {
+    return s;
+  }
+
+symbol "symbol"
+  = h:[a-zA-Z] t:[a-zA-Z\-]* {
+    return [h].concat(t).join("");
+  }
+
+eol
+  = "\n"        //line feed
+  / "\r\n"      //carriage + line feed
+  / "\r"        //carriage return
+  / "\u2028"    //line separator
+  / "\u2029"    //paragraph separator
+
+ws
+  = [\t\v\f \u00A0\uFEFF] {
+    return {type: 'ws'}
+  }
+  / eol {
+    return {type: 'eol'}
+  }
