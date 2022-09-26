@@ -2,17 +2,30 @@
   //
 }}
 
+
+element "element"
+  = tag
+  / selfTag
+  / text
+
+selfTag "selfTag"
+  = ws* "<" name:symbol attrs:attributes ">"  ws* {
+      return {
+        type: "selfTag",
+        name,
+        value: null,
+        attrs: attrs,
+      }
+  }
+
 tag "tag"
-  = ws* h:startTag ws* content:element* ws* t:endTag ws* {
-    if (h.value === t.value) {
+  = ws* h:startTag ws* content:element* ws* t:endTag ws* &{return h.value === t.value} {
       return {
         type: "tag",
+        name: h.value,
         value: content,
         attrs: h.attrs,
       }
-    } else {
-      return error("start tag does not match end tag")
-    }
   }
 
 startTag "startTag"
@@ -25,12 +38,8 @@ endTag "endTag"
     return {type: 'endTag', value: name};
   }
 
-element "element"
-  = text
-  / tag
-
 text "text"
-  = ch:(!endTag !startTag c:. {return c})+ {
+  = ch:(!endTag !startTag !selfTag c:. {return c})+ {
     return {
       type: "text",
       value: ch.join("")
@@ -43,7 +52,7 @@ string "string"
   /      ch:[^"'<>` ]+      { return ch.join(''); }
 
 attributes "attributes"
-  = ws* s:(key:symbol ws* val:("=" ws* val:string { return val; })? { return {key,val}; })* ws* {
+  = ws* s:(key:symbol ws* val:("=" ws* val:string { return val; })? ws* { return {key,val}; })* ws* {
     return s;
   }
 
